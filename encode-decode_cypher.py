@@ -1,8 +1,12 @@
 class VigenereCipher:
 
-  def __init__(self, key: str):
-    self.key = key
-    
+  def set_key(self, key: str):
+    """Public method to set the key, which is used for both encoding and decoding"""
+
+    if not key.isalpha():
+      raise ValueError("Key must be a string of alphabetic characters")
+    self.key = key.lower()
+
   forward_mapping = {
     'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4,
     'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9,
@@ -13,12 +17,24 @@ class VigenereCipher:
 }
   reverse_mapping = {v: k for k, v in forward_mapping.items()}
   
-  def get_new_char(self, text_char: str, key_char: str) -> str:
-    new_char_value = (self.forward_mapping[text_char] + self.forward_mapping[key_char]) % 26
-    new_char = self.reverse_mapping.get(new_char_value)
+  def _get_new_char(self, text_char: str, key_char: str, mode: str) -> str:
+    """Helper method to get the new character based on the mode (encode or decode)"""
+
+    text_char_value = self.forward_mapping.get(text_char) # May be the message char or the key char, depending on the mode
+    key_char_value = self.forward_mapping.get(key_char)
+
+    if mode == 'encode':
+      new_char_value = (text_char_value + key_char_value) % 26 
+      new_char = self.reverse_mapping.get(new_char_value)
+    elif mode == 'decode':
+      new_char_value = (text_char_value - key_char_value) % 26
+      new_char = self.reverse_mapping.get(new_char_value)
+
     return new_char
 
-  def transform(self, message: str) -> str:
+  def _transform(self, message: str, mode: str) -> str:
+    """Main method used to transform the message based on the mode"""
+
     result = ""
 
     key_index = 0
@@ -33,7 +49,7 @@ class VigenereCipher:
         ch = ch.lower()
 
       key_char = self.key[key_index]
-      new_character = self.get_new_char(ch, key_char) 
+      new_character = self._get_new_char(ch, key_char, mode)
 
       key_index += 1
       if key_index >= len(self.key):
@@ -46,14 +62,26 @@ class VigenereCipher:
 
     return result
   
-  def encode(self, word: str) -> str:
-    return self.transform(word)
+  def encode(self, message: str) -> str:
+    """Encodes the message using the Vigenere cipher"""
+    return self._transform(message, mode = 'encode')
+
+  def decode(self, message: str) -> str:
+    """Decodes the message using the Vigenere cipher"""
+    return self._transform(message, mode = 'decode')
 
 
 
-encoder = VigenereCipher('abc')
+encoder_decoder = VigenereCipher()
+encoder_decoder.set_key("abc")
+
 message = "abczz"
-encoded_message = encoder.encode(message)
-
+encoded_message = encoder_decoder.encode(message)
 assert (encoded_message == "aceza")
 print(f"Encoded message: {encoded_message}")
+
+decoded_message = encoder_decoder.decode(encoded_message)
+assert (decoded_message == message)
+print(f"Decoded message: {decoded_message}")
+
+assert message == decoded_message
