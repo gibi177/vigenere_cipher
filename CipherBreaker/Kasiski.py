@@ -1,8 +1,18 @@
+import sys
+import os
+sys.path.append(os.path.abspath(".."))
+
+from utils import factor
 class Kasiski:
   def __init__(self, text: str):
     self.text = text
 
   def _clean_text(self) -> str:
+    """
+    Remove all non-alphabetic characters from the text and convert to lowercase.
+
+    :return: A cleaned string containing only lowercase alphabetic characters.
+    """
     result = ""
 
     for ch in self.text:
@@ -12,6 +22,13 @@ class Kasiski:
     return result
 
   def _get_substrings(self, clean_text: str, length: int) -> list[str]:
+    """
+    Generate all substrings of a given length from the cleaned text.
+
+    :param clean_text: The processed text containing only lowercase letters.
+    :param length: Length of each substring.
+    :return: A list of substrings.
+    """
     substrings = []
     for i in range(len(clean_text) - length + 1):
       substrings.append(clean_text[i:i+length])
@@ -19,7 +36,13 @@ class Kasiski:
     return substrings
 
   def _substring_count(self, substrings: list[str]) -> dict[str, int]:
-    substrings_count = {} # Dictionary where keys are substrings and values are how many times that substring appears in the text
+    """
+    Count how many times each substring appears.
+
+    :param substrings: List of substrings.
+    :return: Dictionary mapping substring -> occurrence count.
+    """
+    substrings_count = {}
 
     for substring in substrings:
       if substring in substrings_count:
@@ -30,7 +53,14 @@ class Kasiski:
     return substrings_count
 
   def _repeated_substrings_positions(self, clean_text: str, substrings_count: dict[str, int]) -> dict[str, list[int]]:
-    result = {} # Dictionary where keys are substrings and values are lists of positions where that substring appears in the text
+    """
+    Find positions of substrings that appear more than once.
+
+    :param clean_text: The cleaned text.
+    :param substrings_count: Dictionary of substring counts.
+    :return: Dictionary mapping substring -> list of positions.
+    """
+    result = {} 
 
     for substring, count in substrings_count.items():
       if count > 1:
@@ -51,7 +81,13 @@ class Kasiski:
     return result
 
   def _repeated_substrings_distances(self, substrings_positions: dict[str, list[int]]) -> dict[str, list[int]]:
-    distances = {} # Dictionary where keys are substrings and values are lists of distances between the positions where that substring appears
+    """
+    Compute distances between consecutive occurrences of repeated substrings.
+
+    :param substrings_positions: Dictionary mapping substring -> positions.
+    :return: Dictionary mapping substring -> list of distances.
+    """
+    distances = {} 
 
     for substring, positions in substrings_positions.items():
       substring_distances = []
@@ -63,63 +99,67 @@ class Kasiski:
 
     return distances
 
-  def _distances_gcd(self, distances: dict[str, list[int]]) -> dict[str, int]:
-    from math import gcd
-    from functools import reduce
-    
-    gcds = {} # keys = substrings, values = GCD of distances
-    for substring, substring_distances in distances.items():
-      if len(substring_distances) > 0:
-        gcd_value = reduce(gcd, substring_distances)
-        gcds[substring] = gcd_value
+  def _factor_distances(self, distances: dict[str, list[int]]) -> list[int]:
+    """
+    Factor all distances of repeated substrings into their divisors.
 
-    return gcds
+    :param distances: Dictionary mapping substring -> list of distances.
+    :return: A list containing all factors from all distances (may contain duplicates).
+    """
+    all_factors = []
 
-  def _likely_key_length(self, distances_gcds: dict[str, int]) -> int:
-    
-    freq = {}  # key = GCD, value = count
-    for gcd_value in distances_gcds.values():
-      if gcd_value in freq:
-        freq[gcd_value] += 1
+    for dist_list in distances.values():
+      for distance in dist_list:
+        all_factors.extend(factor(distance)) # factor() comes from utils.py
+
+    return all_factors
+
+
+  def _likely_key_lengths(self, all_factors: list[int]) -> list[int]:
+    """
+    Rank candidate key lengths by frequency of occurrence among all distance factors.
+
+    :param all_factors: List of all factors from distances.
+    :return: List of likely key lengths, sorted by most frequent first.
+             Returns an empty list if no repeated substrings were found.
+    """
+    freq = {}  
+
+    for factor in all_factors:
+      if factor in freq:
+        freq[factor] += 1
       else:
-        freq[gcd_value] = 1
+        freq[factor] = 1
 
     if not freq:
-      return 0
+      return []
       
-    most_common_gcd = max(freq, key=freq.get)
-    return most_common_gcd
+    sorted_keys = sorted(freq, key=freq.get, reverse=True)
+    return sorted_keys
 
-  def find_key_length(self, substring_length: int) -> int:
-    
-    # 1. Clean the text
+  def find_key_lengths(self, substring_length: int) -> list[int]:
+    """
+    Perform the full Kasiski examination to generate candidate key lengths.
+
+    :param substring_length: Length of substrings to analyze (typically 3 or more).
+    :return: List of likely key lengths, ranked by frequency of occurrence.
+    """
+
     clean = self._clean_text()
-
-    # 2. Get all substrings of length substring_length
     substrings = self._get_substrings(clean, substring_length)
-
-    # 3. Count how many times each substring appears
     counts = self._substring_count(substrings)
-
-    # 4. Get positions of repeated substrings
     positions = self._repeated_substrings_positions(clean, counts)
-
-    # 5. Calculate distances between repeated substrings
     distances = self._repeated_substrings_distances(positions)
+    all_factors = self._factor_distances(distances)
+    key_lengths = self._likely_key_lengths(all_factors)
 
-    # 6. Compute GCDs of distances
-    gcds = self._distances_gcd(distances)
+    return key_lengths
 
-    # 7. Determine most likely key length
-    key_length = self._likely_key_length(gcds)
-
-    return key_length
-    
 
 
 if __name__ == "__main__":  
   cipher_text = "Abcabcabc"
   k = Kasiski(cipher_text)
-  prob_key = k.find_key_length(3)
-  print(prob_key)
+  prob_key_lengths = k.find_key_lengths(3)
+  print(prob_key_lengths)
   
