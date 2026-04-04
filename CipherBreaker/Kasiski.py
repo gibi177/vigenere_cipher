@@ -179,7 +179,7 @@ if __name__ == "__main__":
                     Ilnv umrsh ivzfuox szdl eyo qbvtzgpxj tb luflz tildiyi."""  
 
   k = Kasiski(cipher_text)
-  sequence_length = 4
+  sequence_length = 3
   prob_key_lengths = k.find_key_lengths(sequence_length)
   print(f"Likely key lengths for sequence length {sequence_length}:")
   print(prob_key_lengths)

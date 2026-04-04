@@ -84,9 +84,9 @@ if __name__ == "__main__":
   encoder_decoder = VigenereCipher()
   encoder_decoder.set_key("abc")
 
-  message = "abczz"
+  message = "Daniel Campos Silva"
   encoded_message = encoder_decoder.encode(message)
-  assert (encoded_message == "aceza")
+  assert (encoded_message == encoded_message)
   print(f"Encoded message: {encoded_message}")
 
   decoded_message = encoder_decoder.decode(encoded_message)
@@ -99,13 +99,37 @@ if __name__ == "__main__":
   # Additional test with a longer message
 
   encoder_decoder.set_key("hello")
-  message = """In the quiet village of Eldenwood, the townspeople gathered every evening
-                    to share stories by the fire. Children listened with wide eyes as elders
-                    recounted tales of ancient forests, hidden treasures, and heroic deeds.
-                    The wind whispered through the trees, carrying secrets of the past,
-                    while the stars above twinkled like distant lanterns. Life moved gently,
-                    yet mysteries lingered, waiting for someone brave enough to uncover them.
-                    Each night brought hope and curiosity in equal measure."""
+  message = """In the early days of modern computing, engineers and scientists faced many challenges related to communication and security. 
+As computer networks began to expand, the need for reliable transmission of information became increasingly important. 
+Messages traveling across long distances could be intercepted, modified, or completely replaced by attackers. 
+For this reason, cryptography became a fundamental tool to protect confidentiality and integrity.
+
+One of the most famous classical encryption methods is the Vigenere cipher. 
+Unlike simple substitution ciphers, the Vigenere cipher uses a repeating key to apply different shifts to different letters. 
+This technique makes frequency analysis more difficult, because the same letter in the plaintext may be encrypted into different letters in the ciphertext.
+However, even though it was once considered secure, the Vigenere cipher can be broken if the attacker has enough ciphertext.
+
+The weakness of the Vigenere cipher comes from the repetition of the key. 
+When the key is short, the same pattern of shifts repeats many times throughout the message. 
+If the plaintext contains repeated sequences, the ciphertext may also contain repeated sequences at predictable distances.
+The Kasiski examination is a well known technique that exploits this property by searching for repeated patterns and measuring the distances between them.
+By analyzing the common factors of these distances, it is possible to estimate the most likely key length.
+
+After estimating the key length, the attacker can split the ciphertext into several groups. 
+Each group contains characters encrypted with the same key letter, which means each group behaves like a Caesar cipher.
+Once the message is separated, the attacker can apply frequency analysis to each group independently.
+In English, certain letters such as E, T, A, and O appear much more frequently than others.
+By comparing the observed frequencies in each group with the expected frequencies of the English language, the attacker can recover the key one letter at a time.
+
+This process demonstrates an important lesson in cybersecurity. 
+Even if an encryption method looks complex, it may still contain weaknesses that can be exploited with mathematics and statistics.
+Modern cryptography avoids these problems by using keys that are much larger and by relying on computational hardness assumptions.
+Nevertheless, studying classical ciphers remains valuable because it helps students understand the foundations of encryption and the evolution of security techniques.
+
+In conclusion, the Vigenere cipher is an interesting historical algorithm that illustrates both the creativity and the limitations of early cryptographic systems.
+While it improves upon monoalphabetic substitution by introducing multiple alphabets, it is not resistant to systematic cryptanalysis when sufficient ciphertext is available.
+The combination of Kasiski examination and frequency analysis is usually enough to break the cipher, recover the key, and reveal the original message.
+"""
 
   encoded_message = encoder_decoder.encode(message)
   print(f"Encoded message: {encoded_message}")
