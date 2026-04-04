@@ -14,15 +14,7 @@ FREQ_EN = {
     'z': 0.074
 }
 
-# Frequências aproximadas para português (pt-br / pt)
-FREQ_PT = {
-    'a': 14.63, 'b': 1.04, 'c': 3.88, 'd': 4.99, 'e': 12.57,
-    'f': 1.02, 'g': 1.30, 'h': 1.28, 'i': 6.18, 'j': 0.40,
-    'k': 0.02, 'l': 2.78, 'm': 4.74, 'n': 5.05, 'o': 10.73,
-    'p': 2.52, 'q': 1.20, 'r': 6.53, 's': 7.81, 't': 4.34,
-    'u': 4.63, 'v': 1.67, 'w': 0.01, 'x': 0.21, 'y': 0.01,
-    'z': 0.47
-}
+
 
 
 def clean_text(text: str) -> str:
@@ -76,19 +68,16 @@ def split_into_columns(ciphertext: str, key_length: int) -> list[str]:
     return columns
 
 
-def recover_key(ciphertext: str, key_length: int, language: str = "pt") -> str:
+def recover_key(ciphertext: str, key_length: int) -> str:
     """
     Recover Vigenere key using chi-square frequency analysis.
     language: "pt" or "en"
     """
     ciphertext_clean = clean_text(ciphertext)
 
-    if language.lower() == "pt":
-        expected = FREQ_PT
-    elif language.lower() == "en":
-        expected = FREQ_EN
-    else:
-        raise ValueError("Language must be 'pt' or 'en'")
+    
+    expected = FREQ_EN
+   
 
     columns = split_into_columns(ciphertext_clean, key_length)
 
@@ -112,11 +101,11 @@ def recover_key(ciphertext: str, key_length: int, language: str = "pt") -> str:
     return recovered_key
 
 
-def break_vigenere(ciphertext: str, key_length: int, language: str = "pt"):
+def break_vigenere(ciphertext: str, key_length: int):
     """
     Recover key and decrypt ciphertext.
     """
-    key = recover_key(ciphertext, key_length, language)
+    key = recover_key(ciphertext, key_length)
 
     v = VigenereCipher()
     v.set_key(key)
@@ -159,7 +148,7 @@ if __name__ == "__main__":
                 ez goecp gasctsz fj evl jtcs..."""
 
     key_length = 5
-    key, message = break_vigenere(cipher, key_length, language="en")
+    key, message = break_vigenere(cipher, key_length)
 
     print("Recovered key:", key)
     print("Decrypted message:\n", message)

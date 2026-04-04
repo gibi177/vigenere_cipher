@@ -23,7 +23,7 @@ def part1_test():
     print("Part I OK!\n")
 
 
-def part2_break_cipher(ciphertext: str, language: str = "en"):
+def part2_break_cipher(ciphertext: str):
     print("=== PART II: Breaking Vigenere Cipher ===")
 
     k = Kasiski(ciphertext)
@@ -40,7 +40,7 @@ def part2_break_cipher(ciphertext: str, language: str = "en"):
     for key_len in candidates[:5]:
         print(f"\n[*] Trying key length = {key_len}")
 
-        key, plaintext = break_vigenere(ciphertext, key_len, language=language)
+        key, plaintext = break_vigenere(ciphertext, key_len)
         print("Recovered key:", key)
         print("Plaintext preview:\n", plaintext)
         print("-" * 60)
@@ -93,4 +93,4 @@ if __name__ == "__main__":
     Hswsi te wttczjlw facu qzychpasoiietq zymdhpxfewvr mj wuxczrbgtyu tywewwpp lzwllmsaw, te wz rze flwtdhhre ec zcdesteetq jvjahhrlwmzmd hvlr dftmmntsux ntdoicesex td ocetwoipp.
     Evl gzxpprlewvr zq Yhwtdyp iilaprlewvr lyr mvpbilrnj ouewjgpw td izylwzf iyzinl ez pyilv hoi ntdoic, csjsgpf alp vsf, eyo flzplz alp zfpktyos qpdghkp."""
 
-    part2_break_cipher(ciphertext, language="en")
+    part2_break_cipher(ciphertext)
