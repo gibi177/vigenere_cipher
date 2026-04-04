@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils import factor
+from utils import all_divisors
 
 class Kasiski:
   def __init__(self, text: str):
@@ -82,7 +82,7 @@ class Kasiski:
 
   def _repeated_substrings_distances(self, substrings_positions: dict[str, list[int]]) -> dict[str, list[int]]:
     """
-    Compute distances between consecutive occurrences of repeated substrings.
+    Compute distances between all pairwise occurrences of repeated substrings.
 
     :param substrings_positions: Dictionary mapping substring -> positions.
     :return: Dictionary mapping substring -> list of distances.
@@ -91,9 +91,10 @@ class Kasiski:
 
     for substring, positions in substrings_positions.items():
       substring_distances = []
-      for i in range(len(positions) - 1):
-        distance = positions[i+1] - positions[i]
-        substring_distances.append(distance)
+      for i in range(len(positions)):
+        for j in range(i + 1, len(positions)):
+          distance = positions[j] - positions[i]
+          substring_distances.append(distance)
       
       distances[substring] = substring_distances
 
@@ -110,9 +111,9 @@ class Kasiski:
 
     for dist_list in distances.values():
       for distance in dist_list:
-        all_factors.extend(factor(distance)) # factor() comes from utils.py
+        all_factors.extend(all_divisors(distance)) # all_divisors() comes from utils.py
 
-    return [f for f in all_factors if f >= 3] # Filter out factors less than 3 -> unlikely key lengths
+    return [f for f in all_factors if f > 1] 
 
 
   def _likely_key_lengths(self, all_factors: list[int]) -> list[int]:
@@ -135,7 +136,7 @@ class Kasiski:
       return []
       
     sorted_keys = sorted(freq, key=freq.get, reverse=True)
-    return sorted_keys
+    return sorted_keys[:10] # Return top 10 most likely key lengths
 
   def find_key_lengths(self, substring_length: int) -> list[int]:
     """
